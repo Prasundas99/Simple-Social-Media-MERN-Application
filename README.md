@@ -1,4 +1,4 @@
-# Simple Social Media MERN Application Aithout Auth
+# Simple Social Media MERN Application Without Auth
 
 A Simple Memories sharing app built on MERN Stack.
 
