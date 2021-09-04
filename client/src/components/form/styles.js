@@ -1,9 +1,10 @@
+import { indigo } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 
 export default makeStyles((theme) => ({
   root: {
     '& .MuiTextField-root': {
-      margin: theme.spacing(1),
+      margin: theme.spacing(2),
     },
   },
   paper: {
@@ -16,9 +17,17 @@ export default makeStyles((theme) => ({
   },
   fileInput: {
     width: '97%',
-    margin: '10px 0',
   },
-  buttonSubmit: {
-    marginBottom: 10,
+  input: {
+    background: indigo[500],
+  },
+  formButton: {
+    margin: theme.spacing(2),
+  },
+  icons: {
+    color: indigo[300],
+  },
+  textFiledSpacing: {
+    margin: '8px 2px',
   },
 }));

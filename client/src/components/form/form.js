@@ -1,42 +1,179 @@
-import React , {useState} from 'react';
-import { TextField , Button , Typography , Paper } from '@material-ui/core';
-import FileBase from 'react-file-base64';
-import {useDispatch} from 'react-redux';
-import {createPost} from '../../actions/posts';
+/* eslint-disable  no-unused-vars */
+import { TextField, Paper, Button, Typography } from '@material-ui/core';
+import AccountBoxIcon from '@material-ui/icons/AccountBox';
+import TitleIcon from '@material-ui/icons/Title';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import NoteIcon from '@material-ui/icons/Note';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import FileInput from 'react-file-base64';
 
-import useStyles from './styles';
-const Form = () => {
-    const [postData, setPostData] = useState({ creator: '' , title: '' , message :'' , tags: '', selectedFile: '' })
-    const classes = useStyles();
-    const dispatch = useDispatch();
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { createPost, updatePost } from '../../actions/posts';
 
-    const handelSubmit = (e) => {
-        e.preventDefault();
+import makeStyles from './styles';
 
-        dispatch(createPost(postData));
+const Form = ({ currentId, setCurrentId }) => {
+  const classes = makeStyles();
+  const post = useSelector((state) =>
+    currentId ? state.posts.find((p) => p._id === currentId) : null,
+  );
 
-        console.log(postData);
+  useEffect(() => {
+    if (post) setPostData(post);
+  }, [post]);
+
+  const [postData, setPostData] = useState({
+    creator: '',
+    title: '',
+    message: '',
+    tags: '',
+    selectedFile: '',
+  });
+  const dispatch = useDispatch();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (currentId) {
+      dispatch(updatePost(currentId, postData));
+    } else {
+      dispatch(createPost(postData));
     }
 
-    const clear = () => {
+    clear();
+  };
 
-    }
+  const clear = (currentId) => {
+    setCurrentId(null);
+    setPostData({
+      creator: '',
+      title: '',
+      message: '',
+      tags: '',
+      selectedFile: '',
+    });
+  };
 
-    return(
+  return (
+    <Paper elevation={3} className={classes.paper}>
+      <form
+        autoComplete="off"
+        noValidate
+        className={`${classes.form} ${classes.root}`}
+        onSubmit={handleSubmit}
+      >
+        <Typography variant="h5" className={classes.formHead}>
+          {currentId ? 'Edit' : 'Create'} your Memory
+        </Typography>
+        <TextField
+          className={classes.textFiledSpacing}
+          name="creator"
+          label="Creator"
+          variant="outlined"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <AccountBoxIcon fontSize="small" className={classes.icons} />
+              </InputAdornment>
+            ),
+          }}
+          value={postData.creator}
+          onChange={(e) => {
+            setPostData({ ...postData, creator: e.target.value });
+          }}
+        />
 
-        <Paper className = {classes.paper}> 
-            <form autoComplete='off' noValidate className={classes.form} onSubmit={handelSubmit}>
-                <Typography variant='h6'>Creating A Memory</Typography>
-                <TextField name='creator'  variant='outlined' label='Creator' fullWidth value= {postData.creator}  onChange={(e) => setPostData({...postData, creator: e.target.value})}  />
-                <TextField name='title'    variant='outlined' label='Title'   fullWidth value= {postData.title}    onChange={(e) => setPostData({...postData, title: e.target.value})}  />
-                <TextField name='message'  variant='outlined' label='Message' fullWidth value= {postData.message}  onChange={(e) => setPostData({...postData, message: e.target.value})}  />
-                <TextField name='tags'     variant='outlined' label='Tags'    fullWidth value= {postData.tags}     onChange={(e) => setPostData({...postData, tags: e.target.value})}  />
-                <div className={classes.fileInput}> <FileBase type='file'     multiple={false}    onDone={({base64}) => setPostData({ ...postData, selectedFile: base64})}  /></div>
-                <Button className={classes.buttonSubmit} variant='contained' color='primary' size='large' type='submit' fullWidth >Submit</Button>
-                <Button  variant='contained' color='secondary' size='small' onClick={clear} fullWidth >Clear</Button>
-            </form>
-        </Paper>
-    );
-}
+        <TextField
+          className={classes.textFiledSpacing}
+          name="title"
+          label="Title"
+          variant="outlined"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon fontSize="small" className={classes.icons} />
+              </InputAdornment>
+            ),
+          }}
+          value={postData.title}
+          onChange={(e) => {
+            setPostData({ ...postData, title: e.target.value });
+          }}
+        />
+
+        <TextField
+          className={classes.textFiledSpacing}
+          name="message"
+          label="Message"
+          variant="outlined"
+          multiline
+          rows={4}
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <NoteIcon fontSize="small" className={classes.icons} />
+              </InputAdornment>
+            ),
+          }}
+          value={postData.message}
+          onChange={(e) => {
+            setPostData({ ...postData, message: e.target.value });
+          }}
+        />
+
+        <TextField
+          className={classes.textFiledSpacing}
+          name="tags"
+          label="Tags"
+          variant="outlined"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LocalOfferIcon fontSize="small" className={classes.icons} />
+              </InputAdornment>
+            ),
+          }}
+          value={postData.tags}
+          onChange={(e) => {
+            setPostData({ ...postData, tags: e.target.value.split(',') });
+          }}
+        />
+        <div className={classes.fileInput}>
+          <FileInput
+            /* eslint-disable react/jsx-boolean-value */
+            className={classes.fileInput}
+            type="file"
+            multiple={false}
+            onDone={({ base64 }) => {
+              setPostData({ ...postData, selectedFile: base64 });
+            }}
+          />
+        </div>
+        <Button
+          className={classes.formButton}
+          variant="contained"
+          color="primary"
+          type="submit"
+          fullWidth
+        >
+          Save
+        </Button>
+        <Button
+          className={classes.formButton}
+          variant="contained"
+          color="secondary"
+          onClick={clear}
+          fullWidth
+        >
+          Reset all
+        </Button>
+      </form>
+    </Paper>
+  );
+};
 
 export default Form;
