@@ -1,38 +1,42 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import morgan from 'morgan';
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import morgan from "morgan";
 
-import postroutes from './routes/posts.js';
-
+import postRoutes from "./routes/posts.js";
+import homeRoute from "./routes/home.js";
+// Top level express application
 const app = express();
-app.use(cors());
 
+// Using env variables
+dotenv.config();
 
-
-app.use(express.json({ limit: "30mb", extended: true}));
-
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true}));
-
-app.use(morgan("dev"));
-
-
-
-app.use('/posts', postroutes);
-
-//Database
-const CONNECTION_URL = "mongodb+srv://user1:user1@cluster0.nn5xt.mongodb.net/memories?retryWrites=true&w=majority";
+// Env variables
+const CONNECTION_URL = process.env.CONNECTION;
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(CONNECTION_URL, {
-    useNewUrlParser:true,
-    useUnifiedTopology: true
-}).then( () =>{
- app.listen(PORT, ()=> console.log(`Server is listening on port ${PORT} and DB is connected`))
-})
-.catch( (error)=>{ console.log(error)
-});
+// Middlewares
+app.use(bodyParser.json({ limit: "30mb", extended: "true" }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: "true" }));
+app.use(morgan("dev"));
+app.use(cors());
 
+// Routes
 
-mongoose.set('useFindAndModify', false );
+app.use("/posts", postRoutes);
+app.use("/", homeRoute);
+
+// Connection
+mongoose
+  .connect(CONNECTION_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: "true",
+  })
+  .then(() =>
+    app.listen(PORT, () => console.log(`server running on port ${PORT}`))
+  )
+  .catch((error) => console.log(error.message));
+
+mongoose.set("useFindAndModify", false);
